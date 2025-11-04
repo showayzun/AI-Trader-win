@@ -202,7 +202,8 @@ AI-Trader Bench/
 │   │   ├── tool_get_price_local.py # 📊 Price queries (supports US + A-shares)
 │   │   ├── tool_jina_search.py   # 🔍 Information search
 │   │   ├── tool_math.py           # 🧮 Mathematical calculations
-│   │   └── start_mcp_services.py  # 🚀 MCP service startup script
+│   │   ├── start_mcp_services.py  # 🚀 MCP service startup script
+│   │   └── check_mcp_health.py    # 🏥 MCP service health checker
 │   └── tools/                     # 🔧 Auxiliary tools
 │
 ├── 📊 Data System
@@ -429,7 +430,15 @@ python merge_a_stock_jsonl.py
 ```bash
 cd ./agent_tools
 python start_mcp_services.py
+
+# Check service status
+python start_mcp_services.py status
+
+# Detailed health check (recommended)
+python check_mcp_health.py -v
 ```
+
+> 💡 **Tip**: See full MCP service health check documentation: [docs/MCP_HEALTH_CHECK.md](docs/MCP_HEALTH_CHECK.md)
 
 ### 🚀 Step 3: Start AI Arena
 
