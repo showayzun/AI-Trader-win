@@ -54,33 +54,38 @@ class MCPHealthChecker:
             "price": "LocalPrices",
         }
     
+    def _test_socket_connection(self, port: int, timeout: float) -> Tuple[int, float]:
+        """
+        Test socket connection to a port
+        Returns: (result_code, response_time_ms)
+        Result code 0 means success, non-zero means failure
+        """
+        start_time = time.time()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        result = sock.connect_ex(("localhost", port))
+        sock.close()
+        response_time = (time.time() - start_time) * 1000
+        return result, response_time
+    
     def check_port_open(self, port: int, timeout: float = 1.0) -> bool:
         """Check if a port is open and accepting connections"""
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(timeout)
-            result = sock.connect_ex(("localhost", port))
-            sock.close()
+            result, _ = self._test_socket_connection(port, timeout)
             return result == 0
         except Exception:
             return False
     
-    def check_http_health(self, port: int, timeout: float = 2.0) -> Tuple[bool, Optional[float], Optional[str]]:
+    def check_service_connection(self, port: int, timeout: float = 2.0) -> Tuple[bool, Optional[float], Optional[str]]:
         """
-        Check HTTP health of a service
-        Returns: (is_healthy, response_time_ms, error_message)
+        Check service connection status
+        Returns: (is_connected, response_time_ms, error_message)
         
         Note: FastMCP services don't expose a /health endpoint by default,
-        so we just verify the port is responding to connections.
+        so we verify the port is responding to connections.
         """
         try:
-            start_time = time.time()
-            # Try to connect to the port - FastMCP services listen on HTTP
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(timeout)
-            result = sock.connect_ex(("localhost", port))
-            sock.close()
-            response_time = (time.time() - start_time) * 1000
+            result, response_time = self._test_socket_connection(port, timeout)
             
             if result == 0:
                 return True, response_time, None
@@ -109,10 +114,10 @@ class MCPHealthChecker:
                 error_message="Port not open"
             )
         
-        # Then check HTTP health
-        is_healthy, response_time, error_msg = self.check_http_health(port)
+        # Then check service connection
+        is_connected, response_time, error_msg = self.check_service_connection(port)
         
-        if is_healthy:
+        if is_connected:
             status = ServiceStatus.HEALTHY
         elif error_msg:
             status = ServiceStatus.UNHEALTHY

@@ -18,6 +18,10 @@ load_dotenv()
 
 
 class MCPServiceManager:
+    # Log formatting constants
+    LOG_SEPARATOR_LENGTH = 60
+    LOG_SEPARATOR = "=" * LOG_SEPARATOR_LENGTH
+    
     def __init__(self):
         self.services = {}
         self.running = True
@@ -118,9 +122,9 @@ class MCPServiceManager:
                 with open(log_file, "w" if attempt == 0 else "a") as f:
                     if attempt > 0:
                         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-                        f.write(f"\n{'='*60}\n")
+                        f.write(f"\n{self.LOG_SEPARATOR}\n")
                         f.write(f"Retry attempt {attempt} at {timestamp}\n")
-                        f.write(f"{'='*60}\n\n")
+                        f.write(f"{self.LOG_SEPARATOR}\n\n")
                     
                     process = subprocess.Popen(
                         [sys.executable, script_path], 
