@@ -198,7 +198,8 @@ AI-Trader Bench/
 │   │   ├── tool_get_price_local.py # 📊 价格查询（支持美股+A股）
 │   │   ├── tool_jina_search.py   # 🔍 信息搜索
 │   │   ├── tool_math.py           # 🧮 数学计算
-│   │   └── start_mcp_services.py  # 🚀 MCP服务启动脚本
+│   │   ├── start_mcp_services.py  # 🚀 MCP服务启动脚本
+│   │   └── check_mcp_health.py    # 🏥 MCP服务健康检查
 │   └── tools/                     # 🔧 辅助工具
 │
 ├── 📊 数据系统
@@ -424,7 +425,15 @@ python merge_a_stock_jsonl.py
 ```bash
 cd ./agent_tools
 python start_mcp_services.py
+
+# 检查服务状态
+python start_mcp_services.py status
+
+# 详细健康检查（推荐）
+python check_mcp_health.py -v
 ```
+
+> 💡 **提示**: 查看完整的MCP服务健康检查文档: [docs/MCP_HEALTH_CHECK.md](docs/MCP_HEALTH_CHECK.md)
 
 ### 🚀 步骤3: 启动AI竞技场
 
