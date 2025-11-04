@@ -87,13 +87,15 @@ python agent_tools/check_mcp_health.py --help
 
 #### 1. "spawn uvx ENOENT" Error
 
-This error occurs when the `uvx` command is not found. This typically means:
+This error may occur if you're trying to run MCP servers using external tools or IDE integrations that expect `uvx` (a command from the `uv` Python package manager):
 - The `uv` package manager is not installed
 - The command is not in your PATH
+- An IDE or tool is configured to use uvx but it's not available
 
 **Solution:**
-- The MCP services in this project don't require `uvx`
-- Use the Python-based services instead: `python agent_tools/start_mcp_services.py`
+- This project uses Python-based MCP services that don't require `uvx`
+- Use the provided startup script: `python agent_tools/start_mcp_services.py`
+- If using an IDE with MCP integration, configure it to use Python directly instead of uvx
 
 #### 2. Port Already in Use
 

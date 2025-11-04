@@ -22,6 +22,9 @@ class MCPServiceManager:
     LOG_SEPARATOR_LENGTH = 60
     LOG_SEPARATOR = "=" * LOG_SEPARATOR_LENGTH
     
+    # Service runtime configuration
+    SERVICE_ENV_VARS = {"PYTHONUNBUFFERED": "1"}  # Ensure real-time log output
+    
     def __init__(self):
         self.services = {}
         self.running = True
@@ -132,7 +135,7 @@ class MCPServiceManager:
                         stdout=f, 
                         stderr=subprocess.STDOUT, 
                         cwd=os.getcwd(),
-                        env={**os.environ, "PYTHONUNBUFFERED": "1"}
+                        env={**os.environ, **self.SERVICE_ENV_VARS}
                     )
 
                 self.services[service_id] = {"process": process, "name": service_name, "port": port, "log_file": log_file}
