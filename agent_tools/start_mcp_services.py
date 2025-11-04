@@ -117,7 +117,10 @@ class MCPServiceManager:
                 log_file = self.log_dir / f"{service_id}.log"
                 with open(log_file, "w" if attempt == 0 else "a") as f:
                     if attempt > 0:
-                        f.write(f"\n\n=== Retry attempt {attempt} ===\n\n")
+                        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+                        f.write(f"\n{'='*60}\n")
+                        f.write(f"Retry attempt {attempt} at {timestamp}\n")
+                        f.write(f"{'='*60}\n\n")
                     
                     process = subprocess.Popen(
                         [sys.executable, script_path], 

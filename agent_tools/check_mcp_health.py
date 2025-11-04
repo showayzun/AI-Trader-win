@@ -8,7 +8,6 @@ import os
 import sys
 import time
 import socket
-import requests
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 from enum import Enum
@@ -70,29 +69,34 @@ class MCPHealthChecker:
         """
         Check HTTP health of a service
         Returns: (is_healthy, response_time_ms, error_message)
+        
+        Note: FastMCP services don't expose a /health endpoint by default,
+        so we just verify the port is responding to connections.
         """
         try:
             start_time = time.time()
-            # Try to access the MCP endpoint
-            response = requests.get(
-                f"http://localhost:{port}/health",
-                timeout=timeout
-            )
+            # Try to connect to the port - FastMCP services listen on HTTP
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            result = sock.connect_ex(("localhost", port))
+            sock.close()
             response_time = (time.time() - start_time) * 1000
             
-            if response.status_code == 200:
+            if result == 0:
                 return True, response_time, None
             else:
-                return False, response_time, f"HTTP {response.status_code}"
-        except requests.exceptions.ConnectionError:
-            return False, None, "Connection refused"
-        except requests.exceptions.Timeout:
-            return False, None, "Request timeout"
+                return False, response_time, f"Connection failed (error code: {result})"
+        except socket.timeout:
+            return False, None, "Connection timeout"
         except Exception as e:
             return False, None, str(e)
     
     def check_service(self, service_id: str) -> HealthCheckResult:
         """Perform comprehensive health check for a service"""
+        # Validate service_id
+        if service_id not in self.service_names:
+            raise ValueError(f"Invalid service_id: {service_id}. Must be one of: {list(self.service_names.keys())}")
+        
         service_name = self.service_names[service_id]
         port = self.ports[service_id]
         
@@ -183,14 +187,16 @@ def main():
     """Main function"""
     import argparse
     
+    # Get available services dynamically
+    checker = MCPHealthChecker()
+    available_services = list(checker.ports.keys())
+    
     parser = argparse.ArgumentParser(description="MCP Services Health Checker")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     parser.add_argument("-w", "--watch", type=int, metavar="SECONDS", help="Watch mode: check every N seconds")
-    parser.add_argument("-s", "--service", choices=["math", "search", "trade", "price"], help="Check specific service only")
+    parser.add_argument("-s", "--service", choices=available_services, help="Check specific service only")
     
     args = parser.parse_args()
-    
-    checker = MCPHealthChecker()
     
     if args.watch:
         print(f"🔄 Starting health check in watch mode (checking every {args.watch} seconds)")
