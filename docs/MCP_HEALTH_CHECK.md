@@ -68,7 +68,7 @@ python agent_tools/check_mcp_health.py --help
 
 **Health Check Details:**
 - ✅ Port availability check
-- ✅ HTTP endpoint health check
+- ✅ Socket connection test (validates service is listening)
 - ✅ Response time measurement
 - ✅ Detailed error reporting
 
@@ -114,7 +114,7 @@ netstat -tlnp | grep 8000
 #### 3. Service Fails to Start
 
 If a service fails to start:
-1. Check the log files in `../logs/` directory
+1. Check the log files in the `logs/` directory (relative to project root)
 2. Verify dependencies are installed: `pip install -r requirements.txt`
 3. Check environment variables in `.env` file
 4. Run health check for detailed diagnostics: `python agent_tools/check_mcp_health.py -v`

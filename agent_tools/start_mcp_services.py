@@ -42,8 +42,9 @@ class MCPServiceManager:
             "price": {"script": "tool_get_price_local.py", "name": "LocalPrices", "port": self.ports["price"]},
         }
 
-        # Create logs directory
-        self.log_dir = Path("../logs")
+        # Create logs directory (relative to script location)
+        script_dir = Path(__file__).parent
+        self.log_dir = (script_dir / "../logs").resolve()
         self.log_dir.mkdir(exist_ok=True)
 
         # Set signal handlers
